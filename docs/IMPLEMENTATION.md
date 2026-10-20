@@ -1,134 +1,204 @@
-# Exactly what was implemented
+# How the project was implemented
 
 **Project:** NERV Maintenance Lab
-**Team:** Ananya Daitkar (10846), Lavanya Borse (10839)
-**Research basis:** Ge et al. (2026), [DOI 10.1016/j.asoc.2026.115689](https://doi.org/10.1016/j.asoc.2026.115689)
+**Team:** Ananya Daitkar (10846) and Lavanya Borse (10839)
 
-## 1. What this project is
+## 1. Project idea in simple words
 
-An executable deep-reinforcement-learning study of railway maintenance, with a trained policy, simulator, baselines, test experiments and browser interface. It is an independent implementation in the NERV maintenance domain. The destination repository was empty when implementation began. No original NERV source was copied.
+This project teaches a computer how to plan railway-track maintenance.
 
-The publicly available paper description identifies a maintenance MDP, discrete SAC and stochastic Gamma deterioration. This project implements those concepts. Full equations, exact hyperparameters and the original inspection dataset were unavailable; **all specific simulator parameters below are our assumptions, not claimed paper values**. The paper-linked repository describes a PPO baseline, so it was not treated as a SAC reproduction.
+The computer controls one maintenance machine on a **simulated 50 km railway
+corridor**. The corridor is divided into ten sections of 5 km each. During an
+episode, the computer repeatedly decides whether to:
 
-## 2. Where each component lives
+1. wait, or
+2. send the machine to tamp one track section.
 
-| File | Implemented functionality |
+The computer is rewarded for keeping the track in good condition. It is
+penalised when it travels too far, spends too much money, or allows the track
+to become badly damaged.
+
+This is an independent educational implementation inspired by the public
+description of a railway-maintenance research paper. It is **not** an exact
+copy of that paper and it does not use real railway inspection data.
+
+## 2. What is included
+
+| Location | Plain-language purpose |
 |---|---|
-| `railml/environment.py` | Seeded deterioration, observation, action feasibility, machine movement, maintenance, reward and episode traces |
-| `railml/sac.py` | Convolutional actor, twin Q critics, target critics, replay memory, discrete SAC updates and checkpoint loading |
-| `railml/train.py` | Simulator interaction, gradient updates, validation selection, CSV logs and checkpoint manifests |
-| `railml/baselines.py` | CP-SAT, threshold rule, no-maintenance control and common rollout runner |
-| `railml/evaluate.py` | Held-out tests, stress tests, raw CSV, statistical summary and demo-checkpoint selection |
-| `railml/server.py` | Simulation, training-results, research and CSV-export API |
-| `web/` | Interactive corridor, replay, schedule, probability inspector, graphs and comparisons |
-| `tests/` | Environment, learning-update, checkpoint, optimizer and API tests |
-| `artifacts/` | Actual trained weights, training logs, manifests and measured results |
+| `railml/environment.py` | Creates the virtual railway and applies maintenance actions. |
+| `railml/sac.py` | Contains the neural network and the learning method. |
+| `railml/train.py` | Trains the neural network and saves the best model. |
+| `railml/baselines.py` | Runs three comparison methods. |
+| `railml/evaluate.py` | Tests all methods on new scenarios and creates reports. |
+| `railml/server.py` | Provides the web dashboard and API. |
+| `web/` | Contains the browser interface. |
+| `tests/` | Checks that the environment, learning code, API and saved model work. |
+| `artifacts/` | Contains saved model weights, logs and measured results. |
 
-## 3. Synthetic railway environment
+## 3. The simulated railway
 
-- Ten units, each 5 km: a synthetic 50 km corridor.
-- One maintenance-machine group; sixty sequential maintenance windows per episode.
-- Initial condition independently sampled uniformly between 1.5 and 5.8. Lower is better.
-- Deterioration rates sampled uniformly between 0.07 and 0.20 per window.
-- Independent increments: `Gamma(shape=2, scale=rate/2)`. Their expected value is the segment's rate.
-- At each window, the available duration is one of 75, 90 or 120 minutes.
-- Each segment is unavailable with probability 0.15 in the standard setting.
-- Tamping takes 45 minutes and changes condition to `0.35 × previous condition`, before deterioration.
-- Travel speed is 0.6 km/min; distance is the difference between segment indices times 5 km.
-- A condition above 6 is called overdue. This is a simulation threshold, not a railway standard.
+The project does not connect to a real railway. It creates a small virtual
+railway so that the learning process can be tested safely.
 
-Initial conditions, all deterioration increments, all windows and all unavailability events are sampled before policy execution. Policies cannot inspect future samples. Every method gets the same exogenous scenario for a given seed.
+- The corridor is 50 km long.
+- It has ten track sections, each 5 km long.
+- One maintenance machine is available.
+- Each episode contains 60 maintenance opportunities, called windows.
+- A window gives the machine 75, 90 or 120 minutes.
+- Tamping one section takes 45 minutes.
+- Some sections may be unavailable. In the normal setting, this happens 15%
+  of the time.
+- A track condition above 6 is marked as overdue. This is only a project
+  threshold; it is not an official railway safety limit.
 
-### State
+The starting conditions, damage, available time and unavailable sections are
+generated before a scenario starts. The computer cannot look into the future.
+All methods receive the same scenario when they are compared.
 
-Five channels over the ten units: normalized condition, normalized deterioration rate, one-hot machine position, feasible-service mask and relative travel distance. Remaining episode fraction and current window duration add two scalar features. Total: **52 observation features**.
+## 4. What the computer sees and what it can do
 
-### Actions
+At every maintenance window, the computer receives information such as:
 
-Eleven discrete actions: `0 = wait`; `1..10 = tamp that segment`. A service is feasible only when the track unit is available and `travel_time + 45 <= window_duration`. Wait is always feasible. Invalid actions are rejected before state mutation and have zero actor probability.
+- the current condition of every section,
+- how quickly each section is getting worse,
+- the machine's current position,
+- which sections can be serviced now,
+- the travel distance to each section,
+- how much time remains in the episode, and
+- how long the current window is.
 
-There is at most one tamping action per window. The machine stays at the serviced segment. There is no separate relocation-only action, multi-machine coordination, train timetable, crossing conflict or emergency dispatch model. An unavailable unit cannot be serviced; transit over intermediate unavailable units is not modeled. These are declared simplifications.
+There are eleven possible actions:
 
-### Cost and reward
+- action `0`: wait;
+- actions `1` to `10`: tamp one of the ten sections.
 
-For a service action: `cost = 10 + 0.20 × travel_km`. Wait costs zero. Costs are synthetic units.
+The program removes impossible actions before the neural network chooses. For
+example, it will not allow the machine to service an unavailable section or to
+start work when there is not enough time.
 
-After action and deterioration:
+## 5. How the neural network learns
 
-```text
-penalty = cost / 10
-        + 0.50 × mean(track_condition)
-        + 2.0 × sum(max(track_condition - 6, 0))
-reward  = -penalty
-```
+The project uses **Discrete Soft Actor-Critic**, abbreviated as **SAC**.
 
-This balances work cost, general condition and severity above the threshold. Return is the sum of rewards; a less negative value is better. Overdue exposure is also separately counted as the number of segment-windows above 6. Reward coefficients are project choices.
+In simple terms, SAC works like this:
 
-## 4. The actual ML implementation
+1. The computer looks at the current railway condition.
+2. It chooses an action, sometimes trying a less obvious action to explore.
+3. The simulator applies the action and returns a reward.
+4. The computer stores the experience.
+5. Its neural network is updated so that better future decisions become more
+   likely.
+6. The process repeats many times.
 
-Algorithm: **Discrete Soft Actor-Critic**, an off-policy deep reinforcement-learning method. No labeled schedules are used.
+The neural network has two main jobs:
 
-- Actor: maps the observation to eleven action logits.
-- Two independently initialized critics estimate action values.
-- Each network uses three 1D convolution layers, 16 channels each, kernel size 3, ReLU, followed by a 64-unit dense layer.
-- The actor's infeasible logits are masked before softmax.
-- Replay memory stores up to 50,000 transitions; minibatches have 128 samples.
-- First 1,000 steps use random feasible actions. Subsequent training actions sample the actor distribution.
-- Adam learning rate: 0.0003; discount: 0.97; entropy coefficient: fixed 0.10; target interpolation: 0.01.
-- Gradients are clipped to norm 10. CPU execution uses one PyTorch thread.
-- Evaluation chooses the highest-probability feasible action deterministically.
+- The **actor** suggests which action to take.
+- The **critics** estimate how useful each action is.
 
-### SAC update equations
+The project uses two critics so that the computer is less likely to become too
+confident about a poor action. A saved file such as `best.pt` contains the
+trained actor network and its metadata. It is a real trained model, not a
+hand-written list of maintenance rules.
 
-```text
-V(next) = sum_a pi(a|next) × [min(Q1_target, Q2_target)(next,a) - alpha log pi(a|next)]
-y       = reward + gamma × (1 - done) × V(next)
-L_Q     = MSE(Q1(state,action), y) + MSE(Q2(state,action), y)
-L_actor = mean_state sum_a pi(a|state) × [alpha log pi(a|state) - min(Q1,Q2)(state,a)]
-Q_target <- (1 - tau) × Q_target + tau × Q
-```
+## 6. How rewards are calculated
 
-Only feasible actions carry probability mass. Terminal transitions do not bootstrap. The complete finite-horizon episode is treated as terminal. The target networks do not receive gradients.
+The simulator gives a negative penalty after each action. A good decision has
+a smaller penalty, so its reward is closer to zero.
 
-**Checkpoint meaning:** `best.pt` contains actor parameters and metadata. `demo.pt` is the checkpoint selected on validation scores among completed runs. It is not a hand-written policy. Checkpoint hashes appear in manifests/report.
+The penalty includes:
 
-## 5. Baselines
+- the cost of travelling and doing maintenance,
+- the average condition of the track, and
+- an extra penalty for every section whose condition is above 6.
 
-1. **CP-SAT:** at each window, score feasible service/wait candidates using the current condition and known mean deterioration. Choose exactly one action minimizing expected one-window penalty. This is a deliberately myopic optimization baseline, not the original NERV scheduler or globally optimal multi-window planning.
-2. **Threshold rule:** maintain the worst feasible segment when its condition is at least 4.5; otherwise wait.
-3. **No maintenance:** always wait, a control illustrating deterioration without intervention.
+The **return** is the sum of all rewards in one episode. Because penalties are
+subtracted, a return of `-100` is better than `-500`.
 
-All use the same state information, constraints, costs and scenario noise. CP-SAT is technically an integer optimizer over one-window candidates; for this small action space, direct enumeration would yield the same answer. Tests verify that equivalence.
+The costs and condition values are synthetic project values. They are useful
+for comparing methods inside this simulator, but they are not real railway
+prices or measurements.
 
-## 6. Training and evaluation protocol
+## 7. Comparison methods
 
-- Training seed 0 scenarios begin at 0; seed 1 at 20,000; seed 2 at 40,000.
-- Twenty thousand interaction steps per requested run, approximately 333 completed episodes.
-- Validation scenarios: 100000–100004; evaluation every 2,000 training steps.
-- Best within-run checkpoint and final demo model are selected using validation return, never test scores.
-- Test scenarios: 200000–200019, held out from training and validation.
-- Standard suite: default environment.
-- Stress suite: deterioration rates multiplied by 1.5 and unavailability probability increased to 0.30.
-- Metrics: return, maintenance cost, mean condition, overdue segment-windows, travel, maintenance count and invalid actions.
+The trained SAC model is compared with three simpler methods:
 
-Read `artifacts/evaluation.json` for the actual completed runs included. `evaluation.csv` contains every policy/run/scenario result. SAC mean and standard deviation pool runs × scenarios; they are descriptive statistics, not independent-sample confidence intervals. Per-training-seed results are also reported. Paired comparisons average SAC runs for each scenario before subtracting baseline return.
+1. **CP-SAT:** chooses the action with the lowest expected immediate penalty.
+   It looks only one maintenance window ahead, so it is not a complete global
+   railway planner.
+2. **Threshold rule:** services the worst feasible section when its condition
+   reaches 4.5; otherwise it waits.
+3. **No maintenance:** always waits. This shows what happens when maintenance
+   is never performed.
 
-Zero invalid actions demonstrates enforcement of the simulator's limited constraints. It does not prove real-world safety or good maintenance outcomes.
+All four methods receive the same information and the same scenario noise.
+This makes the comparison fairer.
 
-## 7. Dashboard and API
+## 8. Training and testing process
 
-The browser runs all four methods on the same requested scenario. It visualizes actual returned traces, not prewritten outcomes. Users can replay windows, inspect costs/durations/actions and export the selected schedule. Separate tabs expose actual training CSV logs, validation results, held-out results and methodology. The model is loaded from disk; if it is missing, the server returns an explicit error rather than silently substituting a rule.
+Three independent SAC training runs were made using seeds 0, 1 and 2.
 
-## 8. What is not claimed
+- Each run used 20,000 interaction steps, not 20,000 full episodes.
+- Each run completed about 333 episodes.
+- Validation scenarios were used to select the best checkpoint during
+  training.
+- The final test scenarios were kept separate from training and validation.
+- There were 20 held-out test scenarios in the normal setting and 20 in the
+  stress setting.
+- The stress setting makes deterioration faster and makes more track sections
+  unavailable.
 
-- No exact replication of the paper's numerical results, reward function or original field case study.
-- No real-world deployment, cost calibration or railway safety certification.
-- No guarantee that SAC beats CP-SAT or a simple rule, and no fabricated superiority claims.
-- No automatic retraining button: training is deliberately an explicit CLI operation.
-- No complete port of original NERV's train arbitration, block scheduling or multiple-machine features.
+The checkpoint from training seed 1 was selected for the demo because it had
+the best validation result among the completed runs.
 
-## 9. Academic contribution to explain
+The project does not report a normal classification accuracy percentage. This
+is a decision-making problem, so it reports return, cost, track condition,
+overdue exposure, travel and rule violations instead.
 
-“We implemented an end-to-end discrete-SAC maintenance study, enforced simulator constraints, trained actual neural networks, evaluated held-out scenarios against non-learning baselines, and exposed the decisions and evidence in a reproducible dashboard. The simulation is a documented adaptation of the paper's public method.”
+## 9. Dashboard and API
 
-The strongest evidence is the code, saved weights, training logs, evaluation CSV and successful tests—not a claim of full marks.
+The browser dashboard can:
+
+- run the SAC model,
+- run the comparison methods,
+- replay the maintenance decisions,
+- show the selected action and its probability,
+- show cost and reward for each step,
+- display training and evaluation results, and
+- export a schedule as CSV.
+
+The server loads the saved model from disk. If the model is missing, it shows
+an error instead of silently replacing the model with a rule.
+
+## 10. What the results mean
+
+The measured results are in [`artifacts/RESULTS.md`](../artifacts/RESULTS.md).
+The short version is:
+
+- SAC learned to make valid maintenance decisions.
+- It recorded zero simulator constraint violations.
+- It performed much better than doing no maintenance.
+- In these experiments, the simple threshold rule and CP-SAT baseline had a
+  better average return than SAC.
+- Therefore, the project demonstrates a working, reproducible learning
+  system, but it does not claim that SAC is the best method.
+
+Zero rule violations means that the model followed the simulator's rules. It
+does **not** mean the model is 100% accurate or safe for real railway use.
+
+## 11. Important limitations
+
+- The railway and all measurements are synthetic.
+- The simulator is much smaller than a real railway network.
+- There is only one machine.
+- Train schedules, emergency work and multiple-machine coordination are not
+  modeled.
+- The reward values are project choices, not calibrated railway costs.
+- The project is for education and research demonstration. It is not railway
+  safety certification or a real-world deployment.
+
+## 12. References
+
+- Research paper: [DOI 10.1016/j.asoc.2026.115689](https://doi.org/10.1016/j.asoc.2026.115689)
+- SAC reference: [Discrete SAC](https://arxiv.org/abs/1910.07207)
+- Detailed machine-readable results: [`artifacts/evaluation.json`](../artifacts/evaluation.json)

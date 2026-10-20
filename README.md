@@ -50,6 +50,8 @@ The SAC controller is a **trained neural network**, not a disguised rule. CP-SAT
 
 ## Documentation for the submission
 
+- **[Complete project explanation](docs/PROJECT_EXPLAINED.md)** — the full
+  project flow in simple language, from the simulator to the final results.
 - **[Exactly what was implemented](docs/IMPLEMENTATION.md)** — code map, environment, equations, SAC details, assumptions, limitations.
 - **[Measured results](artifacts/RESULTS.md)** — actual test results, including weaknesses.
 - **[Demo and viva guide](docs/DEMO.md)** — what to show and how to explain it.
