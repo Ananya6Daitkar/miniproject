@@ -2,6 +2,10 @@
 
 **A working railway-maintenance ML mini project with discrete Soft Actor-Critic, a simulator, an interactive dashboard and measured baseline comparisons.**
 
+**Live demo: https://nerv-maintenance-lab.onrender.com**
+
+Hosted on Render free compute. After inactivity, the first request may take about a minute to wake the service.
+
 Team: **Ananya Daitkar — 10846 · Lavanya Borse — 10839**
 
 Research reference: Hanzhang Ge and colleagues, *Optimization of heavy railway maintenance machinery tamping scheduling based on deep reinforcement learning*, Applied Soft Computing (2026), article 115689. [Paper / DOI](https://doi.org/10.1016/j.asoc.2026.115689).
