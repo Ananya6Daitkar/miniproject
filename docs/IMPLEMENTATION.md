@@ -1,7 +1,7 @@
 # Exactly what was implemented
 
-**Project:** NERV Maintenance Lab  
-**Team:** Ananya Daitkar (10846), Lavanya Borse (10839)  
+**Project:** NERV Maintenance Lab
+**Team:** Ananya Daitkar (10846), Lavanya Borse (10839)
 **Research basis:** Ge et al. (2026), [DOI 10.1016/j.asoc.2026.115689](https://doi.org/10.1016/j.asoc.2026.115689)
 
 ## 1. What this project is
