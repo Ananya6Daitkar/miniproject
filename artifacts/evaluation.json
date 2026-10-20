@@ -1,0 +1,484 @@
+{
+  "test_seeds": [
+    200000,
+    200001,
+    200002,
+    200003,
+    200004,
+    200005,
+    200006,
+    200007,
+    200008,
+    200009,
+    200010,
+    200011,
+    200012,
+    200013,
+    200014,
+    200015,
+    200016,
+    200017,
+    200018,
+    200019
+  ],
+  "training_runs": [
+    {
+      "seed": 0,
+      "requested_steps": 20000,
+      "episodes": 333,
+      "seconds": 640.1849832909938,
+      "best_validation_return": -950.2407948771415,
+      "sha256": "24c0e22cd1870253e1d7261823a347431d3128790d02fb3798dcca5e2b73fcf3",
+      "config": {
+        "segments": 10,
+        "horizon": 60,
+        "segment_km": 5.0,
+        "threshold": 6.0,
+        "tamp_minutes": 45.0,
+        "speed_km_min": 0.6,
+        "restoration": 0.35,
+        "gamma_shape": 2.0,
+        "deterioration_multiplier": 1.0,
+        "closure_probability": 0.15
+      },
+      "torch_version": "2.6.0",
+      "numpy_version": "2.2.6",
+      "training_seed_range": [
+        0,
+        333
+      ]
+    },
+    {
+      "seed": 1,
+      "requested_steps": 20000,
+      "episodes": 333,
+      "seconds": 587.3201567079814,
+      "best_validation_return": -144.41972589785127,
+      "sha256": "262069ca6304374cefefb059bb6c6dccde1d78fe9716e9fd261ced2a5984df02",
+      "config": {
+        "segments": 10,
+        "horizon": 60,
+        "segment_km": 5.0,
+        "threshold": 6.0,
+        "tamp_minutes": 45.0,
+        "speed_km_min": 0.6,
+        "restoration": 0.35,
+        "gamma_shape": 2.0,
+        "deterioration_multiplier": 1.0,
+        "closure_probability": 0.15
+      },
+      "torch_version": "2.6.0",
+      "numpy_version": "2.2.6",
+      "training_seed_range": [
+        20000,
+        20333
+      ]
+    },
+    {
+      "seed": 2,
+      "requested_steps": 20000,
+      "episodes": 333,
+      "seconds": 595.2035736670077,
+      "best_validation_return": -246.99303222425502,
+      "sha256": "7ab4c7a88397ce8b00a0205123bcf77b5a6e396d7bf2d5ebda9892f287e32b0c",
+      "config": {
+        "segments": 10,
+        "horizon": 60,
+        "segment_km": 5.0,
+        "threshold": 6.0,
+        "tamp_minutes": 45.0,
+        "speed_km_min": 0.6,
+        "restoration": 0.35,
+        "gamma_shape": 2.0,
+        "deterioration_multiplier": 1.0,
+        "closure_probability": 0.15
+      },
+      "torch_version": "2.6.0",
+      "numpy_version": "2.2.6",
+      "training_seed_range": [
+        40000,
+        40333
+      ]
+    }
+  ],
+  "selected_demo_seed": 1,
+  "summary": {
+    "standard": {
+      "sac": {
+        "return": {
+          "mean": -448.5866679640739,
+          "std": 417.98899789390595,
+          "n": 60
+        },
+        "cost": {
+          "mean": 733.7166666666667,
+          "std": 27.471459252218978,
+          "n": 60
+        },
+        "mean_condition": {
+          "mean": 3.116917594725375,
+          "std": 0.8931190542390323,
+          "n": 60
+        },
+        "overdue_segment_windows": {
+          "mean": 65.7,
+          "std": 68.32779914202726,
+          "n": 60
+        },
+        "travel_km": {
+          "mean": 668.5833333333334,
+          "std": 137.3572962610949,
+          "n": 60
+        },
+        "maintenance_actions": {
+          "mean": 60.0,
+          "std": 0.0,
+          "n": 60
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 60
+        }
+      },
+      "cp_sat": {
+        "return": {
+          "mean": -227.1612352668486,
+          "std": 18.98415446908495,
+          "n": 20
+        },
+        "cost": {
+          "mean": 206.9,
+          "std": 25.794532264354828,
+          "n": 20
+        },
+        "mean_condition": {
+          "mean": 4.474607617385256,
+          "std": 0.07924737954463439,
+          "n": 20
+        },
+        "overdue_segment_windows": {
+          "mean": 89.6,
+          "std": 11.500114415906799,
+          "n": 20
+        },
+        "travel_km": {
+          "mean": 239.5,
+          "std": 37.797939236502245,
+          "n": 20
+        },
+        "maintenance_actions": {
+          "mean": 15.9,
+          "std": 2.1001253095445223,
+          "n": 20
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        }
+      },
+      "threshold": {
+        "return": {
+          "mean": -131.6876390226544,
+          "std": 4.5045823723363085,
+          "n": 20
+        },
+        "cost": {
+          "mean": 341.75,
+          "std": 35.36557201870947,
+          "n": 20
+        },
+        "mean_condition": {
+          "mean": 3.245036422472225,
+          "std": 0.0722721380104397,
+          "n": 20
+        },
+        "overdue_segment_windows": {
+          "mean": 0.5,
+          "std": 1.1002392084403616,
+          "n": 20
+        },
+        "travel_km": {
+          "mean": 411.25,
+          "std": 47.347400306558264,
+          "n": 20
+        },
+        "maintenance_actions": {
+          "mean": 25.95,
+          "std": 2.762054917705485,
+          "n": 20
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        }
+      },
+      "no_maintenance": {
+        "return": {
+          "mean": -2747.1842279314205,
+          "std": 528.4240538941549,
+          "n": 20
+        },
+        "cost": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        },
+        "mean_condition": {
+          "mean": 7.582659463158926,
+          "std": 0.5606847508064804,
+          "n": 20
+        },
+        "overdue_segment_windows": {
+          "mean": 397.6,
+          "std": 43.75818720386415,
+          "n": 20
+        },
+        "travel_km": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        },
+        "maintenance_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        }
+      }
+    },
+    "stress": {
+      "sac": {
+        "return": {
+          "mean": -738.0752206403267,
+          "std": 624.1731538694153,
+          "n": 60
+        },
+        "cost": {
+          "mean": 738.2,
+          "std": 24.615552476611484,
+          "n": 60
+        },
+        "mean_condition": {
+          "mean": 3.8051832787972653,
+          "std": 0.9461542504741546,
+          "n": 60
+        },
+        "overdue_segment_windows": {
+          "mean": 99.16666666666667,
+          "std": 74.41026142710236,
+          "n": 60
+        },
+        "travel_km": {
+          "mean": 693.5,
+          "std": 121.19217125244252,
+          "n": 60
+        },
+        "maintenance_actions": {
+          "mean": 59.95,
+          "std": 0.2197841776510827,
+          "n": 60
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 60
+        }
+      },
+      "cp_sat": {
+        "return": {
+          "mean": -288.71983720339756,
+          "std": 32.609429744586265,
+          "n": 20
+        },
+        "cost": {
+          "mean": 313.1,
+          "std": 37.18219721148394,
+          "n": 20
+        },
+        "mean_condition": {
+          "mean": 4.605402044231477,
+          "std": 0.06823641325922289,
+          "n": 20
+        },
+        "overdue_segment_windows": {
+          "mean": 107.85,
+          "std": 9.22967183085418,
+          "n": 20
+        },
+        "travel_km": {
+          "mean": 360.5,
+          "std": 64.1933756215095,
+          "n": 20
+        },
+        "maintenance_actions": {
+          "mean": 24.1,
+          "std": 2.6930710311737727,
+          "n": 20
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        }
+      },
+      "threshold": {
+        "return": {
+          "mean": -156.1088588723821,
+          "std": 14.038909944842182,
+          "n": 20
+        },
+        "cost": {
+          "mean": 462.9,
+          "std": 33.783988733375494,
+          "n": 20
+        },
+        "mean_condition": {
+          "mean": 3.5038678374834156,
+          "std": 0.10715668049841567,
+          "n": 20
+        },
+        "overdue_segment_windows": {
+          "mean": 4.85,
+          "std": 5.382965334225522,
+          "n": 20
+        },
+        "travel_km": {
+          "mean": 532.0,
+          "std": 48.59607954730938,
+          "n": 20
+        },
+        "maintenance_actions": {
+          "mean": 35.65,
+          "std": 2.796143961356707,
+          "n": 20
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        }
+      },
+      "no_maintenance": {
+        "return": {
+          "mean": -4995.515910581461,
+          "std": 773.5627715435354,
+          "n": 20
+        },
+        "cost": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        },
+        "mean_condition": {
+          "mean": 9.583658417735988,
+          "std": 0.7126237505124929,
+          "n": 20
+        },
+        "overdue_segment_windows": {
+          "mean": 466.85,
+          "std": 31.06576216588559,
+          "n": 20
+        },
+        "travel_km": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        },
+        "maintenance_actions": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        },
+        "constraint_violations": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 20
+        }
+      }
+    }
+  },
+  "per_training_seed_returns": {
+    "0": {
+      "standard": {
+        "mean": -920.4847226753305,
+        "std": 368.52536957876146,
+        "n": 20
+      },
+      "stress": {
+        "mean": -1424.6757484300533,
+        "std": 494.3748248955262,
+        "n": 20
+      }
+    },
+    "1": {
+      "standard": {
+        "mean": -169.24252718815018,
+        "std": 44.956555185694484,
+        "n": 20
+      },
+      "stress": {
+        "mean": -404.41047923112984,
+        "std": 268.0541373491026,
+        "n": 20
+      }
+    },
+    "2": {
+      "standard": {
+        "mean": -256.0327540287411,
+        "std": 221.645274402364,
+        "n": 20
+      },
+      "stress": {
+        "mean": -385.1394342597972,
+        "std": 385.9835616434872,
+        "n": 20
+      }
+    }
+  },
+  "paired_return_advantage": {
+    "standard": {
+      "cp_sat": {
+        "mean": -221.42543269722532,
+        "std": 155.0161054191637,
+        "n": 20
+      },
+      "threshold": {
+        "mean": -316.8990289414195,
+        "std": 158.3135775595045,
+        "n": 20
+      },
+      "no_maintenance": {
+        "mean": 2298.597559967346,
+        "std": 441.32686536777163,
+        "n": 20
+      }
+    },
+    "stress": {
+      "cp_sat": {
+        "mean": -449.35538343692923,
+        "std": 214.69523535841086,
+        "n": 20
+      },
+      "threshold": {
+        "mean": -581.9663617679448,
+        "std": 224.6294426915667,
+        "n": 20
+      },
+      "no_maintenance": {
+        "mean": 4257.440689941135,
+        "std": 671.5549519498885,
+        "n": 20
+      }
+    }
+  },
+  "statistics_note": "SAC summary pools runs \u00d7 scenarios; std is descriptive, not a confidence interval. Paired differences first average SAC runs per scenario.",
+  "data": "Synthetic; no real railway inspection data",
+  "checkpoint_sha256": "262069ca6304374cefefb059bb6c6dccde1d78fe9716e9fd261ced2a5984df02"
+}

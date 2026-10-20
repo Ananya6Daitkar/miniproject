@@ -1,0 +1,26 @@
+{
+  "seed": 1,
+  "requested_steps": 20000,
+  "episodes": 333,
+  "seconds": 587.3201567079814,
+  "best_validation_return": -144.41972589785127,
+  "sha256": "262069ca6304374cefefb059bb6c6dccde1d78fe9716e9fd261ced2a5984df02",
+  "config": {
+    "segments": 10,
+    "horizon": 60,
+    "segment_km": 5.0,
+    "threshold": 6.0,
+    "tamp_minutes": 45.0,
+    "speed_km_min": 0.6,
+    "restoration": 0.35,
+    "gamma_shape": 2.0,
+    "deterioration_multiplier": 1.0,
+    "closure_probability": 0.15
+  },
+  "torch_version": "2.6.0",
+  "numpy_version": "2.2.6",
+  "training_seed_range": [
+    20000,
+    20333
+  ]
+}
